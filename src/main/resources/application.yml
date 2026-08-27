@@ -4,25 +4,49 @@ server:
 spring:
   application:
     name: api-gateway
+  config:
+    import: "optional:configserver:http://localhost:8888"
   cloud:
+    config:
+      enabled: false
     gateway:
       discovery:
         locator:
           enabled: true
           lower-case-service-id: true
       routes:
-        - id: client-billing-service
-          uri: lb://client-billing-service
+        - id: client-service
+          uri: http://localhost:8081
           predicates:
-            - Path=/api/v1/clients/**, /api/v1/subscriptions/**, /api/v1/invoices/**, /api/v1/payments/**
-        - id: service-desk-service
-          uri: lb://service-desk-service
+            - Path=/api/v1/clients,/api/v1/clients/**
+        - id: subscription-service
+          uri: http://localhost:8081
           predicates:
-            - Path=/api/v1/tickets/**, /api/v1/comments/**
-        - id: product-license-service
-          uri: lb://product-license-service
+            - Path=/api/v1/subscriptions,/api/v1/subscriptions/**
+        - id: invoice-service
+          uri: http://localhost:8081
           predicates:
-            - Path=/api/v1/products/**, /api/v1/licenses/**
+            - Path=/api/v1/invoices,/api/v1/invoices/**
+        - id: payment-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/v1/payments,/api/v1/payments/**
+        - id: ticket-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/v1/tickets,/api/v1/tickets/**
+        - id: comment-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/v1/comments,/api/v1/comments/**
+        - id: product-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/v1/products,/api/v1/products/**
+        - id: license-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/v1/licenses,/api/v1/licenses/**
 
 eureka:
   client:
@@ -30,3 +54,12 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
   instance:
     prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
